@@ -1,5 +1,8 @@
 import Styled from "styled-components"
 import { Link } from "react-router-dom"
+import { addFavorites, removeFavorites } from "../redux/actions"
+import { connect } from 'react-redux'
+import { useState, useEffect } from "react"
 
 const CharacterCard = Styled.div`
  margin-top: 5rem;
@@ -32,9 +35,31 @@ const CharacterGender = Styled.h2`
  text-shadow: 1.5rem 1.5rem 1rem;
 `
 
-export default function Card({character, onClose}) {
+
+function Card({character, onClose, myFavorites}) {
+   const [isFav, setIsFav] = useState(false);
+   
+   const handleFavorite = () => {
+      if(isFav) {
+         setIsFav(false)
+         removeFavorites(character.id)
+      }else{
+         setIsFav(true);
+         addFavorites({character})
+      }
+   }
+
+   // useEffect(() => {
+   //    myFavorites.forEach((favElement) => {
+   //       if (favElement.id === character.id) {
+   //          setIsFav(true);
+   //       }
+   //    });
+   // }, [myFavorites]);
+
    return (
       <CharacterCard>
+         {isFav ? (<button onClick={handleFavorite}>❤️</button>) : (<button onClick={handleFavorite}>🤍</button>)}
          <XButton onClick = {() => onClose(character.id)}>X</XButton>
          <Link to = {`/detail/${character.id}`}>
          <CharacterName>{character.name}</CharacterName>
@@ -45,5 +70,20 @@ export default function Card({character, onClose}) {
       </CharacterCard>
    );
 }
+
+const mapDispatchToProps = (dispatch) => {
+   return {
+      addFavorites: (character) => (dispatch(addFavorites(character))),
+      removeFavorites: (id) => (dispatch(removeFavorites(id)))
+   }
+}
+
+const mapStateToProps = (state) => {
+   return {
+      miFavorites: state.myFavorites
+   }
+}
          
+export default connect(mapStateToProps, mapDispatchToProps)(Card);
+
 
